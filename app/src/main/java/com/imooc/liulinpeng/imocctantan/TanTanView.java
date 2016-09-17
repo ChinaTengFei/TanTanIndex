@@ -90,7 +90,7 @@ public class TanTanView extends ViewGroup {
 //            childAt.layout(l, t, r, b);
 //            childAt.offsetTopAndBottom(i*CARD_OFFSET);
 //        }
-        int[] colors = new int[]{Color.RED,Color.BLUE,Color.GREEN,Color.GRAY};
+        int[] colors = new int[]{Color.RED, Color.BLUE, Color.GREEN, Color.GRAY};
         for (int i = 0; i < mViewList.size(); i++) {
             View childAt = mViewList.get(i);
             childAt.layout(l, t, r, b);
@@ -236,9 +236,6 @@ public class TanTanView extends ViewGroup {
         }
 
 
-
-
-
         private void orderItem() {
             for (int i = mViewList.size() - 1; i > 0; i--) {
                 mViewList.get(i).bringToFront();
@@ -274,55 +271,56 @@ public class TanTanView extends ViewGroup {
     }
 
     private Object obj1 = new Object();
+
     private void exitAnim(boolean isLeft) {
-            int finalLeft = 0;
-            int finalTop = 0;
+        int finalLeft = 0;
+        int finalTop = 0;
 
         CardItemView topView = mViewList.get(0);
         if (isLeft) {
-                if (changedViewTop != 0) {
-                    finalTop = mViewDragHelper.getCapturedView().getWidth() * changedViewTop /
-                            (-changedViewLeft) + changedViewTop;
-                }
-                finalLeft =-topView.getWidth();
-            } else {
-                if (changedViewTop != 0) {
-                    finalTop = topView.getWidth() * changedViewTop /
-                            changedViewLeft;
-                }
-                finalLeft = getMeasuredWidth();
+            if (changedViewTop != 0) {
+                finalTop = mViewDragHelper.getCapturedView().getWidth() * changedViewTop /
+                        (-changedViewLeft) + changedViewTop;
             }
+            finalLeft = -topView.getWidth();
+        } else {
+            if (changedViewTop != 0) {
+                finalTop = topView.getWidth() * changedViewTop /
+                        changedViewLeft;
+            }
+            finalLeft = getMeasuredWidth();
+        }
 
-            mViewDragHelper.smoothSlideViewTo(topView, (int) (finalLeft+getRoationOffset(topView
-                                .getRotation(), topView.getWidth(), topView.getHeight())-topView
-                    .getWidth()/2),
-                    finalTop);
-            invalidate();
+        mViewDragHelper.smoothSlideViewTo(topView, (int) (finalLeft + getRoationOffset(topView
+                        .getRotation(), topView.getWidth(), topView.getHeight()) - topView
+                        .getWidth() / 2),
+                finalTop);
+        invalidate();
 
     }
 
-    private double getRoationOffset(float angle,int width,int height){
+    private double getRoationOffset(float angle, int width, int height) {
         //算出小三角形的角度
-        float halfWidth = width/2f;
-        float halfHeight = height/2f;
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
 
-        System.out.println("halfWidth"+halfWidth);
-        System.out.println("halfHeight"+halfHeight);
+        System.out.println("halfWidth" + halfWidth);
+        System.out.println("halfHeight" + halfHeight);
         //小三角型的角度
         float i = halfWidth / halfHeight;
 
-        System.out.println("tan"+i);
+        System.out.println("tan" + i);
         double atan = Math.toDegrees(Math.atan(i));
 
-        System.out.println("小三角形的角度"+atan);
+        System.out.println("小三角形的角度" + atan);
         double sunAngle = atan + angle;
-        double banjing = Math.sqrt(halfHeight*halfHeight+halfWidth*halfWidth);
+        double banjing = Math.sqrt(halfHeight * halfHeight + halfWidth * halfWidth);
 
-        System.out.println("sunAngle"+sunAngle);
+        System.out.println("sunAngle" + sunAngle);
         double sin = Math.sin(Math.toRadians(sunAngle));
 
-        System.out.println("sin"+sin);
-        return sin*banjing;
+        System.out.println("sin" + sin);
+        return sin * banjing;
     }
 
 
