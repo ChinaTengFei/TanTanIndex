@@ -22,14 +22,34 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1">
 
-            <ImageView
-                android:id="@+id/iv_photo"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/ic_launcher"/>
+    <ImageView
+        android:id="@+id/iv_photo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"/>
+    <View
+        android:id="@+id/item_left_indicator"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_margin="10dp"
+        android:alpha="0"
+        android:background="@mipmap/home_card_like" />
+    <View
+        android:id="@+id/item_swipe_right_indicator"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="end"
+        android:layout_margin="10dp"
+        android:alpha="0"
+        android:background="@mipmap/home_card_dislike" />
+
+</FrameLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"

@@ -1,14 +1,11 @@
 package com.imooc.liulinpeng.imocctantan;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +20,7 @@ import java.util.List;
  */
 public class TanTanView extends ViewGroup {
     private static final int CARD_COUNT = 4;
-    private static final int CARD_OFFSET = 30;
+    private static final int CARD_OFFSET = 60;
     private static final float CARD_SCALE = 0.08f;
     private List<CardItemView> releasedViewList = new ArrayList<>();
     private ViewDragHelper mViewDragHelper;
@@ -33,11 +30,10 @@ public class TanTanView extends ViewGroup {
     private int mInitTop;
 
 
-    private int changedViewLeft;
-    private int changedViewTop;
 
     private int mCurrentItemIndex = 1;
-    private ArrayList<CardDataItem> cardItemViewList;
+    private ArrayList<CardDataItem> cardItemDataList;
+    private CallBack mCallBack;
 
     public TanTanView(Context context) {
         this(context, null);
@@ -55,7 +51,6 @@ public class TanTanView extends ViewGroup {
 
     private void initView() {
         mViewList = new ArrayList<>();
-        LayoutInflater from = LayoutInflater.from(getContext());
         for (int i = 0; i < CARD_COUNT; i++) {
 //            View view = from.inflate(R.layout.item, this, false);
 //            TextView viewById = (TextView) view.findViewById(R.id.tv_name);
@@ -68,14 +63,26 @@ public class TanTanView extends ViewGroup {
         Collections.reverse(mViewList);
     }
 
-    public void fillData(ArrayList<CardDataItem> cardItemViewList) {
-        this.cardItemViewList = cardItemViewList;
+    public void fillData(ArrayList<CardDataItem> cardItemDataList) {
+        this.cardItemDataList = cardItemDataList;
         for (int i = 0; i < mViewList.size(); i++) {
             CardItemView cardItemView = mViewList.get(i);
-            cardItemView.fillData(cardItemViewList.get(i));
+            cardItemView.fillData(cardItemDataList.get(i));
         }
     }
-
+    private void loadItem() {
+        CardItemView cardItemView = mViewList.get(0);
+        if (mCurrentItemIndex + 3 < cardItemDataList.size()) {
+            CardDataItem cardDataItem = cardItemDataList.get(mCurrentItemIndex + 3);
+            Log.i(TAG, "loadItem: "+(mCurrentItemIndex + 3));
+            if (cardDataItem != null) {
+                cardItemView.fillData(cardDataItem);
+            }
+            mCurrentItemIndex++;
+        } else {
+            cardItemView.setVisibility(View.GONE);
+        }
+    }
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -90,11 +97,9 @@ public class TanTanView extends ViewGroup {
 //            childAt.layout(l, t, r, b);
 //            childAt.offsetTopAndBottom(i*CARD_OFFSET);
 //        }
-        int[] colors = new int[]{Color.RED, Color.BLUE, Color.GREEN, Color.GRAY};
         for (int i = 0; i < mViewList.size(); i++) {
             View childAt = mViewList.get(i);
             childAt.layout(l, t, r, b);
-            childAt.setBackground(new ColorDrawable(colors[i]));
             float scaleX = 1 - CARD_SCALE * i;
             int offset = i * CARD_OFFSET;
 
@@ -119,8 +124,11 @@ public class TanTanView extends ViewGroup {
 
     }
 
+    private static final String TAG = "TanTanView";
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        orderItem();
+        Log.i(TAG, "onInterceptTouchEvent: ");
         return mViewDragHelper.shouldInterceptTouchEvent(ev);
     }
 
@@ -136,14 +144,14 @@ public class TanTanView extends ViewGroup {
     public void like() {
         Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
         releasedViewList.add(mViewList.get(0));
-        exitAnim(false);
+        exitAnim(false,0,0);
     }
 
 
     public void dislike() {
         Toast.makeText(getContext(), "left", Toast.LENGTH_SHORT).show();
         releasedViewList.add(mViewList.get(0));
-        exitAnim(true);
+        exitAnim(true,0,0);
     }
 
     class ViewDragCallBack extends ViewDragHelper.Callback {
@@ -151,11 +159,14 @@ public class TanTanView extends ViewGroup {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            return getChildAt(getChildCount() - 1) == child;
+            return mViewList.get(0) == child;
         }
 
         @Override
         public int clampViewPositionHorizontal(View child, int left, int dx) {
+            if (mCallBack != null) {
+                mCallBack.onScroll((CardItemView) child, child.getLeft(), child.getTop());
+            }
             return left;
         }
 
@@ -170,9 +181,12 @@ public class TanTanView extends ViewGroup {
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             super.onViewPositionChanged(changedView, left, top, dx, dy);
 
-            changedViewLeft = left - mInitLeft;
-            changedViewTop = top - mInitTop;
-            float rate = changedViewLeft / 400f;
+
+            int changedViewLeft = left - mInitLeft;
+            int changedViewTop = top - mInitTop;
+
+
+            float rate = changedViewLeft / 600f;
 
             if (rate <= -1.0) {
 
@@ -190,14 +204,17 @@ public class TanTanView extends ViewGroup {
             for (int i = 1; i < mViewList.size() - 1; i++) {
 
                 View view = mViewList.get(i);
-
+                int visibility = view.getVisibility();
+                if (visibility!=View.VISIBLE) {
+                    Log.i(TAG, "onViewPositionChanged: asds");
+                    continue;
+                }
                 int offset = (int) (-Math.abs(rate) * CARD_OFFSET) - view.getTop() + CARD_OFFSET
                         * i;
                 float scale = (1 - CARD_SCALE * i) + CARD_SCALE * Math.abs(rate);
                 view.offsetTopAndBottom(offset);
                 view.setScaleX(scale);
                 view.setScaleY(scale);
-                if (i == 1)
                     Log.i(TAG, "onViewPositionChanged: " + offset + "===" + scale + "===" + rate);
             }
         }
@@ -206,62 +223,58 @@ public class TanTanView extends ViewGroup {
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
 
-            if (changedViewLeft > 300 || xvel > 900) {
-                Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
+            int releasedChildLeft = releasedChild.getLeft();
+            int releasedChildTop = releasedChild.getTop();
+            Log.i(TAG, "onViewReleased: "+releasedChildLeft+"===xvel"+xvel);
+            if (releasedChildLeft > 300 || xvel > 900) {
+                if (mCallBack != null) {
+                    mCallBack.rightExit(releasedChild);
+                }
                 releasedViewList.add((CardItemView) releasedChild);
-                exitAnim(false);
-                return;
-            } else if (changedViewLeft < -300 || xvel < -900) {
-                Toast.makeText(getContext(), "left", Toast.LENGTH_SHORT).show();
+                exitAnim(false,releasedChildLeft,releasedChildTop);
+            } else if (releasedChildLeft < -300 || xvel < -900) {
+                if (mCallBack != null) {
+                    mCallBack.leftExit(releasedChild);
+                }
                 releasedViewList.add((CardItemView) releasedChild);
-                exitAnim(true);
-                return;
+                exitAnim(true,releasedChildLeft,releasedChildTop);
+            }else{
+                mViewDragHelper.settleCapturedViewAt(0, 0);
+                invalidate();
             }
-
-            mViewDragHelper.settleCapturedViewAt(0, 0);
-            invalidate();
-
         }
 
         @Override
         public void onViewDragStateChanged(int state) {
             super.onViewDragStateChanged(state);
-//            if (state == ViewDragHelper.STATE_IDLE && releasedViewList.size() != 0) {
-//
-//                mViewDragHelper.getCapturedView().setRotation(0);
-//                orderItem();
-//                releasedViewList.clear();
-//                loadItem();
-//            }
-        }
-
-
-        private void orderItem() {
-            for (int i = mViewList.size() - 1; i > 0; i--) {
-                mViewList.get(i).bringToFront();
+            if (state == ViewDragHelper.STATE_IDLE && releasedViewList.size() != 0) {
+                orderItem();
             }
-
-            CardItemView view = mViewList.get(0);
-            mViewList.remove(view);
-            mViewList.add(view);
         }
 
 
     }
 
-    private void loadItem() {
-        CardItemView cardItemView = mViewList.get(mViewList.size() - 1);
-        if (mCurrentItemIndex + 3 < cardItemViewList.size()) {
-            CardDataItem cardDataItem = cardItemViewList.get(mCurrentItemIndex + 3);
+    private void orderItem() {
 
-            if (cardDataItem != null) {
-                cardItemView.fillData(cardDataItem);
-            }
-            mCurrentItemIndex++;
-        } else {
-            cardItemView.setVisibility(View.GONE);
+        if (releasedViewList.size() == 0) {
+            return;
         }
+        Log.d("TAG", "loadItem() called with: " + "");
+        for (int i = mViewList.size() - 1; i > 0; i--) {
+            mViewList.get(i).bringToFront();
+        }
+        loadItem();
+        CardItemView view = mViewList.get(0);
+
+        view.reSet();
+
+        mViewList.remove(view);
+        mViewList.add(view);
+        releasedViewList.remove(0);
     }
+
+
 
     @Override
     public void computeScroll() {
@@ -272,13 +285,13 @@ public class TanTanView extends ViewGroup {
 
     private Object obj1 = new Object();
 
-    private void exitAnim(boolean isLeft) {
+    private void exitAnim(boolean isLeft,int changedViewLeft,int changedViewTop) {
         int finalLeft = 0;
         int finalTop = 0;
 
         CardItemView topView = mViewList.get(0);
         if (isLeft) {
-            if (changedViewTop != 0) {
+            if ((-changedViewLeft) + changedViewTop != 0) {
                 finalTop = mViewDragHelper.getCapturedView().getWidth() * changedViewTop /
                         (-changedViewLeft) + changedViewTop;
             }
@@ -324,17 +337,25 @@ public class TanTanView extends ViewGroup {
     }
 
 
-    protected interface FlingListener {
-        void onCardExited();
+    public void addCallBack(CallBack callBack) {
+        mCallBack = callBack;
+    }
 
-        void leftExit(Object dataObject);
+    public static class CallBack {
 
-        void rightExit(Object dataObject);
+        void leftExit(Object dataObject) {
+        }
 
-        void onClick(Object dataObject);
+        ;
 
-        void onScroll(float scrollProgressPercent);
+        void rightExit(Object dataObject) {
+        }
 
-        void onMoveXY(float moveX, float moveY);
+        ;
+
+        void onScroll(CardItemView changedView, int dx, int dy) {
+        }
+
+        ;;
     }
 }
