@@ -209,14 +209,19 @@ public class TanTanView extends ViewGroup {
                     Log.i(TAG, "onViewPositionChanged: asds");
                     continue;
                 }
-                int offset = (int) (-Math.abs(rate) * CARD_OFFSET) - view.getTop() + CARD_OFFSET
-                        * i;
+
+                //
+                int offset = (int) (-Math.abs(rate) * CARD_OFFSET) - view.getTop() + CARD_OFFSET * i;
+
                 float scale = (1 - CARD_SCALE * i) + CARD_SCALE * Math.abs(rate);
                 view.offsetTopAndBottom(offset);
                 view.setScaleX(scale);
                 view.setScaleY(scale);
                     Log.i(TAG, "onViewPositionChanged: " + offset + "===" + scale + "===" + rate);
             }
+
+
+            ((CardItemView) changedView).setheartAlpha(left);
         }
 
         @Override
@@ -251,8 +256,10 @@ public class TanTanView extends ViewGroup {
                 orderItem();
             }
         }
+    }
 
-
+    private CardItemView getTopCard(){
+        return mViewList.get(0);
     }
 
     private void orderItem() {
@@ -260,10 +267,13 @@ public class TanTanView extends ViewGroup {
         if (releasedViewList.size() == 0) {
             return;
         }
+
         Log.d("TAG", "loadItem() called with: " + "");
+
         for (int i = mViewList.size() - 1; i > 0; i--) {
             mViewList.get(i).bringToFront();
         }
+
         loadItem();
         CardItemView view = mViewList.get(0);
 
@@ -283,7 +293,6 @@ public class TanTanView extends ViewGroup {
         }
     }
 
-    private Object obj1 = new Object();
 
     private void exitAnim(boolean isLeft,int changedViewLeft,int changedViewTop) {
         int finalLeft = 0;
@@ -343,19 +352,13 @@ public class TanTanView extends ViewGroup {
 
     public static class CallBack {
 
-        void leftExit(Object dataObject) {
+        void leftExit(View exitView) {
         }
 
-        ;
-
-        void rightExit(Object dataObject) {
+        void rightExit(View exitView) {
         }
-
-        ;
 
         void onScroll(CardItemView changedView, int dx, int dy) {
         }
-
-        ;;
     }
 }
