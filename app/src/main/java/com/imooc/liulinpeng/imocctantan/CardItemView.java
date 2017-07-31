@@ -22,20 +22,20 @@ public class CardItemView extends FrameLayout {
 
     private final View item_left_indicator;
     private final View item_right_indicator;
-    public ImageView imageView;
+    private ImageView imageView;
     private TextView userNameTv;
     private TextView imageNumTv;
 
-    private final int CARD_PADDING_TOP;
-    private final int CARD_PADDING_BUTTOM;
-    private final int CARD_PADDING_LEFT;
-    private final int CARD_PADDING_RIGHT;
+    public static final int CARD_PADDING_TOP;
+    public static final int CARD_PADDING_BUTTOM;
+    public static final int CARD_PADDING_LEFT;
+    public static final int CARD_PADDING_RIGHT;
 
-    {
-        CARD_PADDING_TOP = DensityUtil.dip2px(getContext(), 10);
-        CARD_PADDING_BUTTOM = DensityUtil.dip2px(getContext(), 150);
-        CARD_PADDING_LEFT = DensityUtil.dip2px(getContext(), 10);
-        CARD_PADDING_RIGHT = DensityUtil.dip2px(getContext(), 10);
+    static {
+        CARD_PADDING_TOP = DensityUtil.dip2px(TanTanApplition.getInstance(), 10);
+        CARD_PADDING_BUTTOM = DensityUtil.dip2px(TanTanApplition.getInstance(), 150);
+        CARD_PADDING_LEFT = DensityUtil.dip2px(TanTanApplition.getInstance(), 10);
+        CARD_PADDING_RIGHT = DensityUtil.dip2px(TanTanApplition.getInstance(), 10);
     }
 
     public CardItemView(Context context) {

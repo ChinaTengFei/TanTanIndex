@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.imooc.liulinpeng.imocctantan.utils.DensityUtil;
 import com.imooc.liulinpeng.imocctantan.utils.MathUtils;
 
 import java.util.ArrayList;
@@ -22,9 +23,12 @@ import java.util.List;
  */
 public class TanTanView extends ViewGroup {
     private static final int CARD_COUNT = 4;
-    private static final int CARD_OFFSET = 60;
     private static final float CARD_SCALE = 0.08f;
+    private static final int CARD_OFFSET;
 
+    static {
+        CARD_OFFSET = DensityUtil.dip2px(TanTanApplition.getInstance(), 30);
+    }
 
     private List<CardItemView> releasedViewList = new ArrayList<>();
     private ViewDragHelper mViewDragHelper;
@@ -32,7 +36,6 @@ public class TanTanView extends ViewGroup {
     private ArrayList<CardItemView> mViewList;
     private int mInitLeft;
     private int mInitTop;
-
 
 
     private int mCurrentItemIndex = 1;
@@ -67,16 +70,18 @@ public class TanTanView extends ViewGroup {
 
     public void fillData(ArrayList<CardDataItem> cardItemDataList) {
         this.cardItemDataList = cardItemDataList;
-        for (int i = 0; i < mViewList.size(); i++) {
+        
+        for (int i = 0; i < mViewList.size() && i < cardItemDataList.size(); i++) {
             CardItemView cardItemView = mViewList.get(i);
             cardItemView.fillData(cardItemDataList.get(i));
         }
     }
+
     private void loadItem() {
         CardItemView cardItemView = mViewList.get(0);
         if (mCurrentItemIndex + 3 < cardItemDataList.size()) {
             CardDataItem cardDataItem = cardItemDataList.get(mCurrentItemIndex + 3);
-            Log.i(TAG, "loadItem: "+(mCurrentItemIndex + 3));
+            Log.i(TAG, "loadItem: " + (mCurrentItemIndex + 3));
             if (cardDataItem != null) {
                 cardItemView.fillData(cardDataItem);
             }
@@ -85,6 +90,7 @@ public class TanTanView extends ViewGroup {
             cardItemView.setVisibility(View.GONE);
         }
     }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -94,10 +100,11 @@ public class TanTanView extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         for (int i = 0; i < mViewList.size(); i++) {
-            View childAt = mViewList.get(i);
+            CardItemView childAt = mViewList.get(i);
             //实现居中
-            int left = getMeasuredWidth()/2-childAt.getMeasuredWidth()/2;
-            childAt.layout(left, t, left+getMeasuredWidth(), b);
+            int left = getMeasuredWidth() / 2 - childAt.getMeasuredWidth() / 2;
+            int top = t + childAt.CARD_PADDING_TOP;
+            childAt.layout(left, top, left + getMeasuredWidth(), top + childAt.getMeasuredHeight());
             float scaleX = 1 - CARD_SCALE * i;
             int offset = i * CARD_OFFSET;
 
@@ -122,6 +129,7 @@ public class TanTanView extends ViewGroup {
     }
 
     private static final String TAG = "TanTanView";
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         orderItem();
@@ -141,14 +149,14 @@ public class TanTanView extends ViewGroup {
     public void like() {
         Toast.makeText(getContext(), "right", Toast.LENGTH_SHORT).show();
         releasedViewList.add(mViewList.get(0));
-        exitAnim(false,0,0);
+        exitAnim(false, 0, 0);
     }
 
 
     public void dislike() {
         Toast.makeText(getContext(), "left", Toast.LENGTH_SHORT).show();
         releasedViewList.add(mViewList.get(0));
-        exitAnim(true,0,0);
+        exitAnim(true, 0, 0);
     }
 
     class ViewDragCallBack extends ViewDragHelper.Callback {
@@ -200,21 +208,21 @@ public class TanTanView extends ViewGroup {
 
             for (int i = 1; i < mViewList.size() - 1; i++) {
 
-                View view = mViewList.get(i);
+                CardItemView view = mViewList.get(i);
                 int visibility = view.getVisibility();
-                if (visibility!=View.VISIBLE) {
+                if (visibility != View.VISIBLE) {
                     Log.i(TAG, "onViewPositionChanged: asds");
                     continue;
                 }
 
                 //
-                int offset = (int) (-Math.abs(rate) * CARD_OFFSET) - view.getTop() + CARD_OFFSET * i;
+                int offset = (int) (-Math.abs(rate) * CARD_OFFSET + view.CARD_PADDING_TOP) - view.getTop() + CARD_OFFSET * i;
 
                 float scale = (1 - CARD_SCALE * i) + CARD_SCALE * Math.abs(rate);
                 view.offsetTopAndBottom(offset);
                 view.setScaleX(scale);
                 view.setScaleY(scale);
-                    Log.i(TAG, "onViewPositionChanged: " + offset + "===" + scale + "===" + rate);
+                Log.i(TAG, "onViewPositionChanged: " + offset + "===" + scale + "===" + rate);
             }
 
 
@@ -227,20 +235,20 @@ public class TanTanView extends ViewGroup {
 
             int releasedChildLeft = releasedChild.getLeft();
             int releasedChildTop = releasedChild.getTop();
-            Log.i(TAG, "onViewReleased: "+releasedChildLeft+"===xvel"+xvel);
+            Log.i(TAG, "onViewReleased: " + releasedChildLeft + "===xvel" + xvel);
             if (releasedChildLeft > 300 || xvel > 900) {
                 if (mCallBack != null) {
                     mCallBack.rightExit(releasedChild);
                 }
                 releasedViewList.add((CardItemView) releasedChild);
-                exitAnim(false,releasedChildLeft,releasedChildTop);
+                exitAnim(false, releasedChildLeft, releasedChildTop);
             } else if (releasedChildLeft < -300 || xvel < -900) {
                 if (mCallBack != null) {
                     mCallBack.leftExit(releasedChild);
                 }
                 releasedViewList.add((CardItemView) releasedChild);
-                exitAnim(true,releasedChildLeft,releasedChildTop);
-            }else{
+                exitAnim(true, releasedChildLeft, releasedChildTop);
+            } else {
                 mViewDragHelper.settleCapturedViewAt(mInitLeft, mInitTop);
                 invalidate();
             }
@@ -255,7 +263,7 @@ public class TanTanView extends ViewGroup {
         }
     }
 
-    private CardItemView getTopCard(){
+    private CardItemView getTopCard() {
         return mViewList.get(0);
     }
 
@@ -279,7 +287,6 @@ public class TanTanView extends ViewGroup {
     }
 
 
-
     @Override
     public void computeScroll() {
         if (mViewDragHelper.continueSettling(false)) {
@@ -288,7 +295,7 @@ public class TanTanView extends ViewGroup {
     }
 
 
-    private void exitAnim(boolean isLeft,int changedViewLeft,int changedViewTop) {
+    private void exitAnim(boolean isLeft, int changedViewLeft, int changedViewTop) {
         int finalLeft = 0;
         int finalTop = 0;
 
@@ -308,12 +315,10 @@ public class TanTanView extends ViewGroup {
         }
 
         mViewDragHelper.smoothSlideViewTo(topView, (int) (finalLeft + MathUtils.getRoationOffset(topView
-                        .getRotation(), topView.getWidth(), topView.getHeight()) - topView
-                        .getWidth() / 2),finalTop);
+                .getRotation(), topView.getWidth(), topView.getHeight()) - topView
+                .getWidth() / 2), finalTop);
         invalidate();
     }
-
-
 
 
     public void addCallBack(CallBack callBack) {
