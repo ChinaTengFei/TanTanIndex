@@ -1,7 +1,6 @@
 package com.imooc.liulinpeng.imocctantan;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
@@ -139,11 +138,8 @@ public class TanTanView extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Rect rect = new Rect();
-        mViewList.get(0).findViewById(R.id.ll_root).getHitRect(rect);
-        boolean contains = rect.contains((int) event.getX(), (int) event.getY());
         mViewDragHelper.processTouchEvent(event);
-        return contains;
+        return true;
     }
 
     public void like() {
