@@ -70,7 +70,7 @@ public class TanTanView extends ViewGroup {
 
     public void fillData(ArrayList<CardDataItem> cardItemDataList) {
         this.cardItemDataList = cardItemDataList;
-        
+
         for (int i = 0; i < mViewList.size() && i < cardItemDataList.size(); i++) {
             CardItemView cardItemView = mViewList.get(i);
             cardItemView.fillData(cardItemDataList.get(i));
@@ -79,9 +79,9 @@ public class TanTanView extends ViewGroup {
 
     private void loadItem() {
         CardItemView cardItemView = mViewList.get(0);
-        if (mCurrentItemIndex + 3 < cardItemDataList.size()) {
-            CardDataItem cardDataItem = cardItemDataList.get(mCurrentItemIndex + 3);
-            Log.i(TAG, "loadItem: " + (mCurrentItemIndex + 3));
+        if (mCurrentItemIndex + CARD_COUNT-1 < cardItemDataList.size()) {
+            CardDataItem cardDataItem = cardItemDataList.get(mCurrentItemIndex + CARD_COUNT-1);
+            Log.i(TAG, "loadItem: " + (mCurrentItemIndex + CARD_COUNT-1));
             if (cardDataItem != null) {
                 cardItemView.fillData(cardDataItem);
             }
@@ -103,7 +103,7 @@ public class TanTanView extends ViewGroup {
             CardItemView childAt = mViewList.get(i);
             //实现居中
             int left = getMeasuredWidth() / 2 - childAt.getMeasuredWidth() / 2;
-            int top = t + childAt.CARD_PADDING_TOP;
+            int top = CardItemView.CARD_PADDING_TOP;
             childAt.layout(left, top, left + getMeasuredWidth(), top + childAt.getMeasuredHeight());
             float scaleX = 1 - CARD_SCALE * i;
             int offset = i * CARD_OFFSET;
@@ -272,10 +272,12 @@ public class TanTanView extends ViewGroup {
         if (releasedViewList.size() == 0) {
             return;
         }
+
         Log.d("TAG", "loadItem() called with: " + "");
         for (int i = mViewList.size() - 1; i > 0; i--) {
             mViewList.get(i).bringToFront();
         }
+
         loadItem();
         CardItemView view = mViewList.get(0);
 

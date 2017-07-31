@@ -36,6 +36,7 @@ public class CardItemView extends FrameLayout {
         CARD_PADDING_BUTTOM = DensityUtil.dip2px(TanTanApplition.getInstance(), 150);
         CARD_PADDING_LEFT = DensityUtil.dip2px(TanTanApplition.getInstance(), 10);
         CARD_PADDING_RIGHT = DensityUtil.dip2px(TanTanApplition.getInstance(), 10);
+
     }
 
     public CardItemView(Context context) {
@@ -73,6 +74,7 @@ public class CardItemView extends FrameLayout {
         userNameTv.setText(itemData.userName);
         imageNumTv.setText(String.valueOf(itemData.imageNum));
     }
+
 
     private static final String TAG = "CardItemView";
     public void setheartAlpha(int dx){
