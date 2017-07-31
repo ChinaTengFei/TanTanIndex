@@ -16,12 +16,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by LiuLinPeng on 2016/9/12.
+ * Created by LiuLinPeng.
  */
 public class TanTanView extends ViewGroup {
     private static final int CARD_COUNT = 4;
     private static final int CARD_OFFSET = 60;
     private static final float CARD_SCALE = 0.08f;
+
+
     private List<CardItemView> releasedViewList = new ArrayList<>();
     private ViewDragHelper mViewDragHelper;
 
@@ -34,6 +36,7 @@ public class TanTanView extends ViewGroup {
     private int mCurrentItemIndex = 1;
     private ArrayList<CardDataItem> cardItemDataList;
     private CallBack mCallBack;
+
 
     public TanTanView(Context context) {
         this(context, null);
@@ -52,9 +55,6 @@ public class TanTanView extends ViewGroup {
     private void initView() {
         mViewList = new ArrayList<>();
         for (int i = 0; i < CARD_COUNT; i++) {
-//            View view = from.inflate(R.layout.item, this, false);
-//            TextView viewById = (TextView) view.findViewById(R.id.tv_name);
-//            viewById.setText(i+"");
             CardItemView cardItemView = new CardItemView(getContext());
             addView(cardItemView, new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
                     LayoutParams.MATCH_PARENT));
@@ -89,17 +89,13 @@ public class TanTanView extends ViewGroup {
         measureChildren(widthMeasureSpec, heightMeasureSpec);
     }
 
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-//        for (int i = 0; i < getChildCount(); i++) {
-//            View childAt = getChildAt(i);
-//            childAt.layout(l, t, r, b);
-//            childAt.offsetTopAndBottom(i*CARD_OFFSET);
-//        }
         for (int i = 0; i < mViewList.size(); i++) {
             View childAt = mViewList.get(i);
-            childAt.layout(l, t, r, b);
+            //实现居中
+            int left = getMeasuredWidth()/2-childAt.getMeasuredWidth()/2;
+            childAt.layout(left, t, left+getMeasuredWidth(), b);
             float scaleX = 1 - CARD_SCALE * i;
             int offset = i * CARD_OFFSET;
 
@@ -119,7 +115,6 @@ public class TanTanView extends ViewGroup {
         if (view != null) {
             mInitLeft = view.getLeft();
             mInitTop = view.getTop();
-
         }
 
     }
@@ -244,7 +239,7 @@ public class TanTanView extends ViewGroup {
                 releasedViewList.add((CardItemView) releasedChild);
                 exitAnim(true,releasedChildLeft,releasedChildTop);
             }else{
-                mViewDragHelper.settleCapturedViewAt(0, 0);
+                mViewDragHelper.settleCapturedViewAt(mInitLeft, mInitTop);
                 invalidate();
             }
         }
@@ -267,13 +262,10 @@ public class TanTanView extends ViewGroup {
         if (releasedViewList.size() == 0) {
             return;
         }
-
         Log.d("TAG", "loadItem() called with: " + "");
-
         for (int i = mViewList.size() - 1; i > 0; i--) {
             mViewList.get(i).bringToFront();
         }
-
         loadItem();
         CardItemView view = mViewList.get(0);
 

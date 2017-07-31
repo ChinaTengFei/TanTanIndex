@@ -26,12 +26,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ttvMain = ((TanTanView) findViewById(R.id.ttv_main));
         ArrayList<CardDataItem> cardDataItems = new ArrayList<>();
+
         for (int i = 0; i < imagePath.length; i++) {
-            cardDataItems.add(new CardDataItem(imagePath[i],names[i],i));
+            cardDataItems.add(new CardDataItem(imagePath[i], names[i], i));
         }
+
         ttvMain.fillData(cardDataItems);
 
-        ttvMain.addCallBack(new TanTanView.CallBack(){
+        ttvMain.addCallBack(new TanTanView.CallBack() {
             @Override
             void leftExit(View exitView) {
                 super.leftExit(exitView);
@@ -44,5 +46,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "right", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void like(View view) {
+        ttvMain.like();
+    }
+
+    public void dislike(View view) {
+        ttvMain.dislike();
     }
 }
